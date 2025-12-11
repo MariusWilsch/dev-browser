@@ -23,6 +23,32 @@ cd skills/dev-browser && bun run test
 cd skills/dev-browser && bun x tsc --noEmit
 ```
 
+## Headless Mode
+
+The dev-browser server can run in headless mode (no visible browser window) or headed mode (shows browser window).
+
+```bash
+# Headed mode (default, shows browser window for debugging)
+cd skills/dev-browser && bun run start-server
+
+# Headless mode via CLI flag (no visible browser)
+cd skills/dev-browser && bun run start-server -- --headless
+
+# Headless mode via environment variable (useful for CI/automation)
+DEV_BROWSER_HEADLESS=true cd skills/dev-browser && bun run start-server
+
+# CLI flags override environment variables
+DEV_BROWSER_HEADLESS=true cd skills/dev-browser && bun run start-server -- --no-headless  # Will be headed
+
+# Show available options
+cd skills/dev-browser && bun run start-server -- --help
+```
+
+**Use Cases:**
+
+- **Headed mode** (default): Best for development and debugging - you can see what the browser is doing
+- **Headless mode**: Best for CI/automation, background tasks, or when you don't need visual feedback
+
 ## Important: Before Completing Code Changes
 
 **Always run these checks before considering a task complete:**

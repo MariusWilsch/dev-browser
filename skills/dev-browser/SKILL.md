@@ -20,8 +20,20 @@ Browser automation that maintains page state across script executions. Write sma
 First, start the dev-browser server. It will automatically install Chromium on first run if needed:
 
 ```bash
+# Headed mode (default) - shows browser window
 cd skills/dev-browser && bun run start-server &
+
+# Headless mode - no visible browser window (useful for automation)
+cd skills/dev-browser && bun run start-server -- --headless &
+
+# Or using environment variable
+DEV_BROWSER_HEADLESS=true cd skills/dev-browser && bun run start-server &
 ```
+
+**Headless vs Headed Mode:**
+
+- **Headed** (default): Browser window is visible. Use when the user wants to see what's happening or for debugging.
+- **Headless**: No browser window. Use for automation tasks, when the user doesn't need visual feedback, or when running in CI/background.
 
 **Wait for the `Ready` message before running scripts.** On first run, the server will:
 
