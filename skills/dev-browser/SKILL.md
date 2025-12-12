@@ -312,3 +312,46 @@ await client.disconnect();
 ```
 
 Execute: `cd skills/dev-browser && bun x tsx /tmp/dev-browser-debug.ts`
+
+## Requesting User Input (Blockers)
+
+When automation encounters ANY blocking scenario requiring user input, use the `interactive_feedback` MCP tool:
+
+### Common Blockers
+
+- **MFA/OTP codes** - Login screens requiring authentication codes
+- **CAPTCHAs** - Human verification challenges
+- **Confirmation dialogs** - "Are you sure?" prompts requiring decision
+- **Cookie consent** - GDPR/privacy popups
+- **Unexpected prompts** - Any scenario where automation can't proceed
+
+### Workflow
+
+1. **Detect blocker** - Take screenshot, identify what's blocking progress
+2. **Request user input** - Call `interactive_feedback` with clear prompt
+3. **Receive response** - User enters input in Web UI popup
+4. **Continue automation** - Use the response to proceed
+
+### Example Usage
+
+```typescript
+// When automation is blocked and needs user input:
+// 1. Take screenshot to show user what you're seeing
+// 2. Call the interactive_feedback MCP tool
+//
+// Tool name: interactive_feedback
+// Parameters: { "prompt": "I'm blocked by [description]. Please [action needed]." }
+//
+// Examples:
+// - "Please enter your OTP code for Invoice Agent"
+// - "CAPTCHA detected - please solve it in the browser window"
+// - "Confirmation dialog appeared - should I proceed? (yes/no)"
+// - "Cookie consent popup - accept or reject?"
+```
+
+**Important:**
+- Always invoke the skill FIRST before attempting automation
+- Detect blockers early (check for redirects, popups, unexpected screens)
+- Use `interactive_feedback` for ANY user input needed mid-automation
+- The feedback tool opens a Web UI - user enters input and submits
+- Tool returns the user's response as a string
