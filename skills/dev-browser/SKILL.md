@@ -53,30 +53,33 @@ The server starts a Chromium browser with a REST API for page management (defaul
 
 ## Writing Scripts
 
-Execute scripts inline using heredocs—no need to write files for one-off automation:
+**Always write scripts to `/tmp/` using the Write tool, then execute:**
 
-```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+1. **Write the script** using Claude's Write tool to `/tmp/dev-browser-task.ts`:
+
+```typescript
+// /tmp/dev-browser-task.ts
 import { connect } from "@/client.js";
 const client = await connect("http://localhost:9222");
 const page = await client.page("main");
 // Your automation code here
 await client.disconnect();
-EOF
 ```
 
-**Only write to `tmp/` files when:**
+2. **Execute** with bash:
 
-- The script needs to be reused multiple times
-- The script is complex and you need to iterate on it
-- The user explicitly asks for a saved script
+```bash
+cd skills/dev-browser && bun x tsx /tmp/dev-browser-task.ts
+```
+
+**Why `/tmp/`?** The Write tool already has permission for `/tmp/` (via `additionalDirectories`), eliminating permission prompts. This is especially important for multi-step automation workflows where repeated permission requests break flow.
 
 ### Basic Template
 
-Use the `@/client.js` import path for all scripts.
+Use the `@/client.js` import path for all scripts. Write to `/tmp/dev-browser-task.ts`:
 
-```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+```typescript
+// /tmp/dev-browser-task.ts
 import { connect, waitForPageLoad } from "@/client.js";
 
 const client = await connect("http://localhost:9222");
@@ -93,7 +96,11 @@ console.log({ title, url });
 
 // Disconnect so the script exits (page stays alive on the server)
 await client.disconnect();
-EOF
+```
+
+Then execute:
+```bash
+cd skills/dev-browser && bun x tsx /tmp/dev-browser-task.ts
 ```
 
 ### Key Principles
@@ -185,8 +192,8 @@ Use `getAISnapshot()` when you don't know the page layout and need to discover w
 - **Element states** (checked, disabled, expanded, etc.)
 - **Stable refs** that persist across script executions
 
-```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+```typescript
+// /tmp/dev-browser-task.ts
 import { connect, waitForPageLoad } from "@/client.js";
 
 const client = await connect("http://localhost:9222");
@@ -200,8 +207,9 @@ const snapshot = await client.getAISnapshot("main");
 console.log(snapshot);
 
 await client.disconnect();
-EOF
 ```
+
+Execute: `cd skills/dev-browser && bun x tsx /tmp/dev-browser-task.ts`
 
 #### Example Output
 
@@ -244,8 +252,8 @@ The snapshot is YAML-formatted with semantic structure:
 
 Use `selectSnapshotRef()` to get a Playwright ElementHandle for any ref:
 
-```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+```typescript
+// /tmp/dev-browser-task.ts
 import { connect, waitForPageLoad } from "@/client.js";
 
 const client = await connect("http://localhost:9222");
@@ -267,8 +275,9 @@ await waitForPageLoad(page);
 console.log("Navigated to:", page.url());
 
 await client.disconnect();
-EOF
 ```
+
+Execute: `cd skills/dev-browser && bun x tsx /tmp/dev-browser-task.ts`
 
 ## Debugging Tips
 
@@ -285,8 +294,8 @@ If a script fails, the page state is preserved. You can:
 2. Check the current URL and DOM state
 3. Write a recovery script to get back on track
 
-```bash
-cd skills/dev-browser && bun x tsx <<'EOF'
+```typescript
+// /tmp/dev-browser-debug.ts
 import { connect } from "@/client.js";
 
 const client = await connect("http://localhost:9222");
@@ -300,5 +309,6 @@ console.log({
 });
 
 await client.disconnect();
-EOF
 ```
+
+Execute: `cd skills/dev-browser && bun x tsx /tmp/dev-browser-debug.ts`
